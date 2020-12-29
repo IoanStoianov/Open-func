@@ -11,4 +11,6 @@ spec:
       - name: open-func
         image: open-func
         imagePullPolicy: Never
+        ports:
+        - containerPort: 8090
       restartPolicy: Never
