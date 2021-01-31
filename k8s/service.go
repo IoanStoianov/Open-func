@@ -3,46 +3,34 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"open-func/types"
 
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 )
 
-// apiVersion: v1
-// kind: Service
-// metadata:
-//   name: my-service
-// spec:
-//   selector:
-//     app: MyApp
-//   ports:
-//     - protocol: TCP
-//       port: 80
-//       targetPort: 9376
-
 //
-func CreateService(clientset *kubernetes.Clientset) {
+func CreateService(clientset *kubernetes.Clientset, fungTrigger types.FuncTrigger) int32 {
 	servicesClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
 
 	newService := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "nodejs-port-service",
+			Name: fmt.Sprintf("%s-port-%d-service", fungTrigger.FuncName, fungTrigger.FuncPort),
 			Labels: map[string]string{
-				"app": "node-docker",
+				"func": fungTrigger.FuncName,
 			},
 		},
 		Spec: apiv1.ServiceSpec{
 
 			Type: apiv1.ServiceTypeNodePort,
 			Selector: map[string]string{
-				"app": "node-docker",
+				"func": fungTrigger.FuncName,
 			},
 			Ports: []apiv1.ServicePort{
 				{
 					Protocol: apiv1.ProtocolTCP,
-					Port:     8000,
-					NodePort: 32041,
+					Port:     fungTrigger.FuncPort,
 				},
 			},
 		},
@@ -54,4 +42,6 @@ func CreateService(clientset *kubernetes.Clientset) {
 		panic(err)
 	}
 	fmt.Printf("Created service %q.\n", result.GetObjectMeta().GetName())
+
+	return result.Spec.Ports[0].NodePort
 }

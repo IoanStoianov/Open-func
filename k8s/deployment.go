@@ -3,6 +3,8 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"open-func/types"
+	"strconv"
 
 	"k8s.io/client-go/kubernetes"
 
@@ -12,38 +14,45 @@ import (
 )
 
 //
-func Deploy(clientset *kubernetes.Clientset) map[string]string {
+func CreateDeployment(clientset *kubernetes.Clientset, fungTrigger types.FuncTrigger) {
 
 	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
 
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "node-docker",
+			Name: fungTrigger.FuncName,
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: int32Ptr(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"app": "node-docker",
+					"func": fungTrigger.FuncName,
 				},
 			},
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app": "node-docker",
+						"func": fungTrigger.FuncName,
 					},
 				},
 				Spec: apiv1.PodSpec{
 					Containers: []apiv1.Container{
 						{
-							Name:            "web",
-							Image:           "node-docker",
+							Name:            fungTrigger.FuncName,
+							Image:           fungTrigger.ImageName,
 							ImagePullPolicy: "Never",
 							Ports: []apiv1.ContainerPort{
 								{
 									Name:          "http",
 									Protocol:      apiv1.ProtocolTCP,
-									ContainerPort: 8000,
+									ContainerPort: fungTrigger.FuncPort,
+								},
+							},
+							EnvFrom: []apiv1.EnvFromSource{},
+							Env: []apiv1.EnvVar{
+								{
+									Name:  "OPEN_FUNC_PORT",
+									Value: strconv.Itoa(int(fungTrigger.FuncPort)),
 								},
 							},
 						},
@@ -60,7 +69,6 @@ func Deploy(clientset *kubernetes.Clientset) map[string]string {
 		panic(err)
 	}
 	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
-	return result.GetObjectMeta().GetLabels()
 }
 
 func int32Ptr(i int32) *int32 { return &i }
