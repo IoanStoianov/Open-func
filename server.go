@@ -6,6 +6,7 @@ import (
 	"open-func/k8s"
 	"open-func/k8s/client"
 	"open-func/triggers"
+	"open-func/types"
 
 	"github.com/gorilla/mux"
 )
@@ -17,8 +18,8 @@ func hello(w http.ResponseWriter, req *http.Request) {
 
 func deployNodejs(w http.ResponseWriter, req *http.Request) {
 	client := client.OutCluster()
-	k8s.CreateDeployment(client, 3000)
-	k8s.CreateService(client, 3000)
+	k8s.CreateDeployment(client, types.FuncTrigger{FuncPort: 3000})
+	k8s.CreateService(client, types.FuncTrigger{FuncPort: 3000})
 }
 
 func newRouter() *mux.Router {
