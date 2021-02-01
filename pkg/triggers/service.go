@@ -6,9 +6,9 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"open-func/k8s"
-	"open-func/k8s/client"
-	"open-func/types"
+	"github.com/IoanStoianov/Open-func/pkg/k8s"
+	"github.com/IoanStoianov/Open-func/pkg/k8s/client"
+	"github.com/IoanStoianov/Open-func/pkg/types"
 )
 
 const contentType = "application/json"
@@ -44,19 +44,20 @@ func FuncReadFuncTrigger(r *http.Request) (*types.FuncTrigger, error) {
 	return req, nil
 }
 
-var portNum int32 = 0
+var port int32 = 1878
 
-func deployFunc(w http.ResponseWriter, req *http.Request) {
+func DeployFunc(w http.ResponseWriter, req *http.Request) {
+
 	client := client.OutCluster()
 	dummy := types.FuncTrigger{
 		FuncName:    "node-docker",
 		ImageName:   "node-docker",
 		TriggerType: "HttpTrigger",
-		FuncPort:    portNum,
+		FuncPort:    port,
 	}
 	k8s.CreateDeployment(client, dummy)
 	k8s.CreateService(client, dummy)
-	portNum++
+	port++
 }
 
 //
@@ -67,7 +68,7 @@ func HTTPTriggerRedirect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := http.Post("http://192.168.49.2:32041/triggerHttp", contentType, bytes.NewReader(payload))
+	resp, err := http.Post("http://192.168.49.2:32310/triggerHttp", contentType, bytes.NewReader(payload))
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
