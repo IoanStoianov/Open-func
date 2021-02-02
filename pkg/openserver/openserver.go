@@ -2,6 +2,7 @@ package openserver
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -23,15 +24,15 @@ type OpenServer struct {
 }
 
 // NewServer - server factory
-func NewServer(addr uint) (s *OpenServer) {
+func NewServer(addr uint) (*OpenServer, error) {
 	// client.OutCluster()
 	router := newRouter()
 
 	if addr < 1001 {
-		addr = 8090
+		return nil, errors.New("Invalid port number")
 	}
 
-	s = &OpenServer{
+	s := &OpenServer{
 		Server: http.Server{
 			Addr:         fmt.Sprintf(":%d", addr),
 			ReadTimeout:  10 * time.Second,
@@ -41,7 +42,7 @@ func NewServer(addr uint) (s *OpenServer) {
 		shutdowReq: make(chan bool),
 	}
 
-	return s
+	return s, nil
 }
 
 // WaitShutdown blocks the main thread until an interrupt is received to

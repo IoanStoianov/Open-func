@@ -2,13 +2,18 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/IoanStoianov/Open-func/pkg/openserver"
 )
 
 func main() {
 	var port uint = 8090
-	server := openserver.NewServer(port)
+	server, err := openserver.NewServer(port)
+	if err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
 
 	done := make(chan bool)
 	go func() {
@@ -27,4 +32,5 @@ func main() {
 	<-done
 
 	log.Println("Done.")
+	os.Exit(0)
 }
