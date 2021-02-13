@@ -1,16 +1,18 @@
-var express = require('express');
-var bodyParser = require('body-parser');
+const express = require('express');
 
-var app = express();
+const app = express();
 
+app.use(express.json());
 
-app.use(bodyParser.json());
+app.get('/', (_, res) => {
+  res.send('Ketap works...');
+});
 
 app.post('/triggerHttp', (req, res) => {
-    console.log('Got body:', req.body);
-    res.send(["Ketap",req.body]);
+  console.log('Got body:', req.body);
+  res.send(["Ketap", req.body]);
 });
 
 app.listen(process.env.OPEN_FUNC_PORT || 3014, () => {
-  console.log('Listening to Port ' + process.env.OPEN_FUNC_PORT || 3014);
+  console.log('Listening on port ' + process.env.OPEN_FUNC_PORT || 3014);
 });
