@@ -25,7 +25,6 @@ type OpenServer struct {
 
 // NewServer - server factory
 func NewServer(addr uint) (*OpenServer, error) {
-	// client.OutCluster()
 	router := newRouter()
 
 	if addr < 1001 {

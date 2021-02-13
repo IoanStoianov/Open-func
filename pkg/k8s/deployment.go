@@ -27,13 +27,13 @@ func CreateDeployment(clientset *kubernetes.Clientset, fungTrigger types.FuncTri
 			Replicas: int32Ptr(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"func": fungTrigger.FuncName,
+					"app": fungTrigger.FuncName,
 				},
 			},
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"func": fungTrigger.FuncName,
+						"app": fungTrigger.FuncName,
 					},
 				},
 				Spec: apiv1.PodSpec{
@@ -45,7 +45,6 @@ func CreateDeployment(clientset *kubernetes.Clientset, fungTrigger types.FuncTri
 							Ports: []apiv1.ContainerPort{
 								{
 									Name:          "http",
-									Protocol:      apiv1.ProtocolTCP,
 									ContainerPort: fungTrigger.FuncPort,
 								},
 							},

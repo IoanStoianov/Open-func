@@ -3,6 +3,7 @@ package triggers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -29,10 +30,10 @@ func RegisterNewFuncTrigger(w http.ResponseWriter, r *http.Request) {
 func FuncReadFuncTrigger(r *http.Request) (*types.FuncTrigger, error) {
 	// Read body
 	b, err := ioutil.ReadAll(r.Body)
-	defer r.Body.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer r.Body.Close()
 
 	// Unmarshal
 	var req *types.FuncTrigger
@@ -46,11 +47,12 @@ func FuncReadFuncTrigger(r *http.Request) (*types.FuncTrigger, error) {
 
 var port int32 = 1878
 
+//
 func DeployFunc(w http.ResponseWriter, req *http.Request) {
 
-	client := client.OutCluster()
+	client := client.InCluster()
 	dummy := types.FuncTrigger{
-		FuncName:    "node-docker",
+		FuncName:    fmt.Sprintf("node-%d", port),
 		ImageName:   "node-docker",
 		TriggerType: "HttpTrigger",
 		FuncPort:    port,
@@ -68,7 +70,7 @@ func HTTPTriggerRedirect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := http.Post("http://192.168.49.2:32310/triggerHttp", contentType, bytes.NewReader(payload))
+	resp, err := http.Post("http://node-docker-service/triggerHttp", contentType, bytes.NewReader(payload))
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -81,11 +83,11 @@ func HTTPTriggerRedirect(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	w.Write(b)
 
+	w.Write(b)
 }
 
-// curl localhost:8000 -d '{"name":"Hello"}'
+// ReadTriggerRequest - curl localhost:8000 -d '{"name":"Hello"}'
 func ReadTriggerRequest(r *http.Request) ([]byte, error) {
 	// Read body
 	b, err := ioutil.ReadAll(r.Body)
