@@ -3,6 +3,7 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/IoanStoianov/Open-func/pkg/types"
 
@@ -12,8 +13,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 )
 
-// CreateService TODO
-func CreateService(clientset *kubernetes.Clientset, funcTrigger types.FuncTrigger) int32 {
+// CreateService creates a clusterIP service for the deployment of a trigger
+func CreateService(clientset *kubernetes.Clientset, funcTrigger types.FuncTrigger) error {
 	servicesClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
 
 	newService := &apiv1.Service{
@@ -37,12 +38,13 @@ func CreateService(clientset *kubernetes.Clientset, funcTrigger types.FuncTrigge
 		},
 	}
 
-	fmt.Println("Creating service...")
+	log.Println("Creating service...")
 	result, err := servicesClient.Create(context.TODO(), newService, metav1.CreateOptions{})
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return err
 	}
-	fmt.Printf("Created service %q.\n", result.GetObjectMeta().GetName())
 
-	return result.Spec.Ports[0].NodePort
+	log.Printf("Created service %q.\n", result.GetObjectMeta().GetName())
+	return nil
 }

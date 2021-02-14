@@ -1,12 +1,12 @@
 package types
 
-//
+// HTTPTriggerRequest moodel
 type HTTPTriggerRequest struct {
-	FuncName int64       `json:"funcName"`
+	FuncName string      `json:"funcName"`
 	Payload  interface{} `json:"payload"`
 }
 
-//
+// FuncTrigger model
 type FuncTrigger struct {
 	FuncName    string `json:"funcName"`
 	TriggerType string `json:"triggerType"`

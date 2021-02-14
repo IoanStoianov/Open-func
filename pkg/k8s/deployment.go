@@ -2,7 +2,7 @@ package k8s
 
 import (
 	"context"
-	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/IoanStoianov/Open-func/pkg/types"
@@ -14,8 +14,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-//
-func CreateDeployment(clientset *kubernetes.Clientset, funcTrigger types.FuncTrigger) {
+// CreateDeployment creates a deployment based on a funcTrigger
+func CreateDeployment(clientset *kubernetes.Clientset, funcTrigger types.FuncTrigger) error {
 
 	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
 
@@ -63,12 +63,15 @@ func CreateDeployment(clientset *kubernetes.Clientset, funcTrigger types.FuncTri
 	}
 
 	// Create Deployment
-	fmt.Println("Creating deployment...")
+	log.Println("Creating deployment...")
 	result, err := deploymentsClient.Create(context.TODO(), deployment, metav1.CreateOptions{})
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return err
 	}
-	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
+
+	log.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
+	return nil
 }
 
 func int32Ptr(i int32) *int32 { return &i }

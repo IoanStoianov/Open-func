@@ -62,7 +62,6 @@ func (s *OpenServer) WaitShutdown() {
 }
 
 func pong(w http.ResponseWriter, req *http.Request) {
-
 	fmt.Fprintf(w, "pong\n")
 }
 
@@ -70,8 +69,8 @@ func newRouter() *mux.Router {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/ping", pong).Methods("GET")
-	r.HandleFunc("/prepare", triggers.DeployFunc).Methods("POST")
-	r.HandleFunc("/test", triggers.HTTPTriggerRedirect).Methods("POST")
+	r.HandleFunc("/prepare", triggers.PrepareFunc).Methods("POST")
+	r.HandleFunc("/trigger", triggers.HTTPTriggerRedirect).Methods("POST")
 
 	staticFileDirectory := http.Dir("./web/open-func/build/")
 	staticFileHandler := http.StripPrefix("/", http.FileServer(staticFileDirectory))

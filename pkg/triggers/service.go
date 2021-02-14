@@ -3,6 +3,7 @@ package triggers
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -16,9 +17,8 @@ const contentType = "application/json"
 
 var triggers map[string]*types.FuncTrigger = make(map[string]*types.FuncTrigger)
 
-//
-func RegisterNewFuncTrigger(w http.ResponseWriter, r *http.Request) {
-	req, err := FuncReadFuncTrigger(r)
+func registerNewFuncTrigger(w http.ResponseWriter, r *http.Request) {
+	req, err := funcReadFuncTrigger(r)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -26,8 +26,7 @@ func RegisterNewFuncTrigger(w http.ResponseWriter, r *http.Request) {
 	triggers[req.FuncName] = req
 }
 
-//
-func FuncReadFuncTrigger(r *http.Request) (*types.FuncTrigger, error) {
+func funcReadFuncTrigger(r *http.Request) (*types.FuncTrigger, error) {
 	// Read body
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -45,35 +44,54 @@ func FuncReadFuncTrigger(r *http.Request) (*types.FuncTrigger, error) {
 	return req, nil
 }
 
-//
-func DeployFunc(w http.ResponseWriter, req *http.Request) {
+// PrepareFunc readies a deployment and service for hot execution
+func PrepareFunc(w http.ResponseWriter, r *http.Request) {
 	var payload types.FuncTrigger
 
-	decoder := json.NewDecoder(req.Body)
+	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&payload); err != nil {
 		log.Println(err)
-		w.WriteHeader(400)
+		http.Error(w, err.Error(), 400)
 		return
 	}
-	defer req.Body.Close()
+	defer r.Body.Close()
 
 	client := client.InCluster()
 
-	k8s.CreateDeployment(client, payload)
-	k8s.CreateService(client, payload)
+	if err := k8s.CreateDeployment(client, payload); err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	if err := k8s.CreateService(client, payload); err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
 
 	w.WriteHeader(204)
 }
 
-//
+// HTTPTriggerRedirect sends http request and handles response for http trigger
 func HTTPTriggerRedirect(w http.ResponseWriter, r *http.Request) {
-	payload, err := ReadTriggerRequest(r)
+	var trigger types.HTTPTriggerRequest
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&trigger); err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	defer r.Body.Close()
+
+	payload, err := json.Marshal(trigger.Payload)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
 
-	resp, err := http.Post("http://nod4o-service/triggerHttp", contentType, bytes.NewReader(payload))
+	url := fmt.Sprintf("http://%s-service/triggerHttp", trigger.FuncName)
+
+	resp, err := http.Post(url, contentType, bytes.NewReader(payload))
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -90,7 +108,7 @@ func HTTPTriggerRedirect(w http.ResponseWriter, r *http.Request) {
 	w.Write(b)
 }
 
-// ReadTriggerRequest - curl localhost:8000 -d '{"name":"Hello"}'
+// ReadTriggerRequest UNUSED - curl localhost:8000 -d '{"name":"Hello"}'
 func ReadTriggerRequest(r *http.Request) ([]byte, error) {
 	// Read body
 	b, err := ioutil.ReadAll(r.Body)
