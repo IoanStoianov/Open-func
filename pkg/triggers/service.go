@@ -70,7 +70,7 @@ func HTTPTriggerRedirect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := http.Post("http://node-docker-service/triggerHttp", contentType, bytes.NewReader(payload))
+	resp, err := http.Post("http://node-1878-service/triggerHttp", contentType, bytes.NewReader(payload))
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
