@@ -15,7 +15,7 @@ import (
 )
 
 // CreateDeployment creates a deployment based on a funcTrigger
-func CreateDeployment(clientset *kubernetes.Clientset, funcTrigger types.FuncTrigger) error {
+func CreateDeployment(clientset *kubernetes.Clientset, funcTrigger types.FuncTrigger) (string, error) {
 
 	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
 
@@ -66,12 +66,18 @@ func CreateDeployment(clientset *kubernetes.Clientset, funcTrigger types.FuncTri
 	log.Println("Creating deployment...")
 	result, err := deploymentsClient.Create(context.TODO(), deployment, metav1.CreateOptions{})
 	if err != nil {
-		log.Println(err)
-		return err
+		return "", err
 	}
 
 	log.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
-	return nil
+	return funcTrigger.FuncName, nil
+}
+
+// DeleteDeployment does what the name says
+func DeleteDeployment(clientset *kubernetes.Clientset, name string) error {
+	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
+
+	return deploymentsClient.Delete(context.TODO(), name, metav1.DeleteOptions{})
 }
 
 func int32Ptr(i int32) *int32 { return &i }

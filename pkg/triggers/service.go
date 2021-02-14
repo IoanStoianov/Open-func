@@ -8,8 +8,6 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/IoanStoianov/Open-func/pkg/k8s"
-	"github.com/IoanStoianov/Open-func/pkg/k8s/client"
 	"github.com/IoanStoianov/Open-func/pkg/types"
 )
 
@@ -42,33 +40,6 @@ func funcReadFuncTrigger(r *http.Request) (*types.FuncTrigger, error) {
 	}
 
 	return req, nil
-}
-
-// PrepareFunc readies a deployment and service for hot execution
-func PrepareFunc(w http.ResponseWriter, r *http.Request) {
-	var payload types.FuncTrigger
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&payload); err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), 400)
-		return
-	}
-	defer r.Body.Close()
-
-	client := client.InCluster()
-
-	if err := k8s.CreateDeployment(client, payload); err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	if err := k8s.CreateService(client, payload); err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-
-	w.WriteHeader(204)
 }
 
 // HTTPTriggerRedirect sends http request and handles response for http trigger

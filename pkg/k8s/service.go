@@ -14,7 +14,7 @@ import (
 )
 
 // CreateService creates a clusterIP service for the deployment of a trigger
-func CreateService(clientset *kubernetes.Clientset, funcTrigger types.FuncTrigger) error {
+func CreateService(clientset *kubernetes.Clientset, funcTrigger types.FuncTrigger) (string, error) {
 	servicesClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
 
 	newService := &apiv1.Service{
@@ -42,9 +42,18 @@ func CreateService(clientset *kubernetes.Clientset, funcTrigger types.FuncTrigge
 	result, err := servicesClient.Create(context.TODO(), newService, metav1.CreateOptions{})
 	if err != nil {
 		log.Println(err)
-		return err
+		return "", err
 	}
 
-	log.Printf("Created service %q.\n", result.GetObjectMeta().GetName())
-	return nil
+	serviceName := result.GetObjectMeta().GetName()
+	log.Printf("Created service %q.\n", serviceName)
+
+	return serviceName, nil
+}
+
+// DeleteService deletes a service in default namespace
+func DeleteService(clientset *kubernetes.Clientset, name string) error {
+	servicesClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
+
+	return servicesClient.Delete(context.TODO(), name, metav1.DeleteOptions{})
 }
