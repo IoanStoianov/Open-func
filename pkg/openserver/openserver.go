@@ -73,7 +73,7 @@ func newRouter() *mux.Router {
 	r.HandleFunc("/deploy", triggers.DeployFunc).Methods("GET")
 	r.HandleFunc("/test", triggers.HTTPTriggerRedirect).Methods("POST")
 
-	staticFileDirectory := http.Dir("../web/open-func/build/")
+	staticFileDirectory := http.Dir("./web/open-func/build/")
 	staticFileHandler := http.StripPrefix("/", http.FileServer(staticFileDirectory))
 	r.PathPrefix("/").Handler(staticFileHandler).Methods("GET")
 
