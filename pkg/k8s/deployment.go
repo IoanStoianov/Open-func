@@ -24,7 +24,7 @@ func CreateDeployment(clientset *kubernetes.Clientset, funcTrigger types.FuncTri
 			Name: funcTrigger.FuncName,
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: int32Ptr(1),
+			Replicas: int32Ptr(funcTrigger.Instances),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
 					"app": funcTrigger.FuncName,

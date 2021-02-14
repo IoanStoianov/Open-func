@@ -3,8 +3,8 @@ package triggers
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/IoanStoianov/Open-func/pkg/k8s"
@@ -45,21 +45,24 @@ func FuncReadFuncTrigger(r *http.Request) (*types.FuncTrigger, error) {
 	return req, nil
 }
 
-var port int32 = 1878
-
 //
 func DeployFunc(w http.ResponseWriter, req *http.Request) {
+	var payload types.FuncTrigger
+
+	decoder := json.NewDecoder(req.Body)
+	if err := decoder.Decode(&payload); err != nil {
+		log.Println(err)
+		w.WriteHeader(400)
+		return
+	}
+	defer req.Body.Close()
 
 	client := client.InCluster()
-	dummy := types.FuncTrigger{
-		FuncName:    fmt.Sprintf("node-%d", port),
-		ImageName:   "node-docker",
-		TriggerType: "HttpTrigger",
-		FuncPort:    port,
-	}
-	k8s.CreateDeployment(client, dummy)
-	k8s.CreateService(client, dummy)
-	port++
+
+	k8s.CreateDeployment(client, payload)
+	k8s.CreateService(client, payload)
+
+	w.WriteHeader(204)
 }
 
 //
@@ -70,7 +73,7 @@ func HTTPTriggerRedirect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp, err := http.Post("http://node-1878-service/triggerHttp", contentType, bytes.NewReader(payload))
+	resp, err := http.Post("http://nod4o-service/triggerHttp", contentType, bytes.NewReader(payload))
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return

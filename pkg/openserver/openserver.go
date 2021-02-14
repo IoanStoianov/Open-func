@@ -70,7 +70,7 @@ func newRouter() *mux.Router {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/ping", pong).Methods("GET")
-	r.HandleFunc("/deploy", triggers.DeployFunc).Methods("GET")
+	r.HandleFunc("/prepare", triggers.DeployFunc).Methods("POST")
 	r.HandleFunc("/test", triggers.HTTPTriggerRedirect).Methods("POST")
 
 	staticFileDirectory := http.Dir("./web/open-func/build/")

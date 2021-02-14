@@ -12,4 +12,5 @@ type FuncTrigger struct {
 	TriggerType string `json:"triggerType"`
 	ImageName   string `json:"imageName"`
 	FuncPort    int32  `json:"funcPort"`
+	Instances   int32  `json:"instances"`
 }
