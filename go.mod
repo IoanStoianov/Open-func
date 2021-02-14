@@ -1,4 +1,4 @@
-module open-func
+module github.com/IoanStoianov/Open-func
 
 go 1.15
 

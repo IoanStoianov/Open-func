@@ -3,8 +3,9 @@ package k8s
 import (
 	"context"
 	"fmt"
-	"open-func/types"
 	"strconv"
+
+	"github.com/IoanStoianov/Open-func/pkg/types"
 
 	"k8s.io/client-go/kubernetes"
 
