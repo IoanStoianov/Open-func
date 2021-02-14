@@ -15,44 +15,44 @@ import (
 )
 
 //
-func CreateDeployment(clientset *kubernetes.Clientset, fungTrigger types.FuncTrigger) {
+func CreateDeployment(clientset *kubernetes.Clientset, funcTrigger types.FuncTrigger) {
 
 	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
 
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: fungTrigger.FuncName,
+			Name: funcTrigger.FuncName,
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: int32Ptr(1),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"app": fungTrigger.FuncName,
+					"app": funcTrigger.FuncName,
 				},
 			},
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app": fungTrigger.FuncName,
+						"app": funcTrigger.FuncName,
 					},
 				},
 				Spec: apiv1.PodSpec{
 					Containers: []apiv1.Container{
 						{
-							Name:            fungTrigger.FuncName,
-							Image:           fungTrigger.ImageName,
+							Name:            funcTrigger.FuncName,
+							Image:           funcTrigger.ImageName,
 							ImagePullPolicy: "Never",
 							Ports: []apiv1.ContainerPort{
 								{
 									Name:          "http",
-									ContainerPort: fungTrigger.FuncPort,
+									ContainerPort: funcTrigger.FuncPort,
 								},
 							},
 							EnvFrom: []apiv1.EnvFromSource{},
 							Env: []apiv1.EnvVar{
 								{
 									Name:  "OPEN_FUNC_PORT",
-									Value: strconv.Itoa(int(fungTrigger.FuncPort)),
+									Value: strconv.Itoa(int(funcTrigger.FuncPort)),
 								},
 							},
 						},
