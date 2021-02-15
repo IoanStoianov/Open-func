@@ -55,6 +55,7 @@ func NewServer(addr uint) (*OpenServer, error) {
 	r.HandleFunc("/ping", pong).Methods("GET")
 	r.HandleFunc("/prepare", s.PrepareFunc).Methods("POST")
 	r.HandleFunc("/trigger", triggers.HTTPTriggerRedirect).Methods("POST")
+	r.HandleFunc("/coldTrigger", triggers.HTTPColdTrigger).Methods("POST")
 
 	// TODO: frontend should be extracted as a standalone service
 	staticFileDirectory := http.Dir("./web/open-func/build/")
