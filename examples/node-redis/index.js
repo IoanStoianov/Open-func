@@ -1,15 +1,27 @@
+const { exit } = require("process");
+const { promisify } = require("util");
 const redis = require("redis");
 
 const client = redis.createClient({
     host: process.env.REDIS_URL
 });
 
-client.on("error", (err) => {
-    console.error(err);
-});
+const setPair = promisify(client.set).bind(client);
+const publish = promisify(client.publish).bind(client);
 
-// Redis key/value store
-client.set("ketap1", "Ketap", redis.print);
+run();
 
-// Redis channel publish
-client.publish("results", JSON.stringify({ ketap: "Ketap" }));
+async function run() {
+    try {
+        // Redis key/value store
+        await setPair("ketap1", "Ketap");
+
+        // Redis channel publish
+        await publish("results", JSON.stringify({ ketap: "Ketap" }));
+
+        exit(0);
+    } catch (e) {
+        console.error(e);
+        exit(1);
+    }
+}
