@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: node-redis-test
+spec:
+  activeDeadlineSeconds: 50
+  ttlSecondsAfterFinished: 10
+  template:
+    spec:
+      containers:
+        - name: node-redis
+          image: node-redis
+          imagePullPolicy: Never
+          env:
+            - name: REDIS_URL
+              value: redis
+      restartPolicy: Never
