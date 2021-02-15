@@ -1,3 +1,5 @@
 .vscode/
 examples/
 docs/
+deployments/
+**/node_modules

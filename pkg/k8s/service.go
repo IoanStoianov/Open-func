@@ -3,46 +3,57 @@ package k8s
 import (
 	"context"
 	"fmt"
+	"log"
 
 	"github.com/IoanStoianov/Open-func/pkg/types"
 
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/util/intstr"
 	"k8s.io/client-go/kubernetes"
 )
 
-//
-func CreateService(clientset *kubernetes.Clientset, fungTrigger types.FuncTrigger) int32 {
+// CreateService creates a clusterIP service for the deployment of a trigger
+func CreateService(clientset *kubernetes.Clientset, funcTrigger types.FuncTrigger) (string, error) {
 	servicesClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
 
 	newService := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: fmt.Sprintf("%s-port-%d-service", fungTrigger.FuncName, fungTrigger.FuncPort),
+			Name: fmt.Sprintf("%s-service", funcTrigger.FuncName),
 			Labels: map[string]string{
-				"func": fungTrigger.FuncName,
+				"app": funcTrigger.FuncName,
 			},
 		},
 		Spec: apiv1.ServiceSpec{
-
-			Type: apiv1.ServiceTypeNodePort,
+			Type: apiv1.ServiceTypeClusterIP,
 			Selector: map[string]string{
-				"func": fungTrigger.FuncName,
+				"app": funcTrigger.FuncName,
 			},
 			Ports: []apiv1.ServicePort{
 				{
-					Protocol: apiv1.ProtocolTCP,
-					Port:     fungTrigger.FuncPort,
+					Port:       80,
+					TargetPort: intstr.FromInt(int(funcTrigger.FuncPort)),
 				},
 			},
 		},
 	}
 
-	fmt.Println("Creating service...")
+	log.Println("Creating service...")
 	result, err := servicesClient.Create(context.TODO(), newService, metav1.CreateOptions{})
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return "", err
 	}
-	fmt.Printf("Created service %q.\n", result.GetObjectMeta().GetName())
 
-	return result.Spec.Ports[0].NodePort
+	serviceName := result.GetObjectMeta().GetName()
+	log.Printf("Created service %q.\n", serviceName)
+
+	return serviceName, nil
+}
+
+// DeleteService deletes a service in default namespace
+func DeleteService(clientset *kubernetes.Clientset, name string) error {
+	servicesClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
+
+	return servicesClient.Delete(context.TODO(), name, metav1.DeleteOptions{})
 }
