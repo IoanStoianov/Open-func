@@ -59,7 +59,7 @@ func (r *MongoRepo) GetRecords(name string, count int64) ([]*types.FuncResult, e
 
 	var results []*types.FuncResult
 
-	for cursor.Next(context.TODO()) {
+	for cursor.Next(context.Background()) {
 		var result types.FuncResult
 		err := cursor.Decode(&result)
 		if err != nil {

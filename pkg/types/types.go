@@ -23,6 +23,6 @@ type FuncSpecs struct {
 }
 
 type FuncResult struct {
-	Name string      `json:"name"`
-	Data interface{} `json:"data"`
+	FuncName string      `json:"funcName" bson:"name"`
+	Data     interface{} `json:"data" bson:"data"`
 }

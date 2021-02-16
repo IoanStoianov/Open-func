@@ -18,7 +18,7 @@ async function run() {
 
         // Redis channel publish
         await publish("results", JSON.stringify({
-            name: "func1", data: { ketap: "Ketap" }
+            funcName: "func1", data: { ketap: "Ketap" }
         }));
 
         exit(0);
