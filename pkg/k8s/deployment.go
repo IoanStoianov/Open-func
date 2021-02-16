@@ -14,45 +14,45 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// CreateDeployment creates a deployment based on a funcTrigger
-func CreateDeployment(clientset *kubernetes.Clientset, funcTrigger types.FuncTrigger) (string, error) {
+// CreateDeployment creates a deployment based on a funcSpecs
+func CreateDeployment(clientset *kubernetes.Clientset, funcSpecs types.FuncSpecs) (string, error) {
 
 	deploymentsClient := clientset.AppsV1().Deployments(apiv1.NamespaceDefault)
 
 	deployment := &appsv1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: funcTrigger.FuncName,
+			Name: funcSpecs.FuncName,
 		},
 		Spec: appsv1.DeploymentSpec{
-			Replicas: int32Ptr(funcTrigger.Instances),
+			Replicas: int32Ptr(funcSpecs.Instances),
 			Selector: &metav1.LabelSelector{
 				MatchLabels: map[string]string{
-					"app": funcTrigger.FuncName,
+					"app": funcSpecs.FuncName,
 				},
 			},
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app": funcTrigger.FuncName,
+						"app": funcSpecs.FuncName,
 					},
 				},
 				Spec: apiv1.PodSpec{
 					Containers: []apiv1.Container{
 						{
-							Name:            funcTrigger.FuncName,
-							Image:           funcTrigger.ImageName,
+							Name:            funcSpecs.FuncName,
+							Image:           funcSpecs.ImageName,
 							ImagePullPolicy: "Never",
 							Ports: []apiv1.ContainerPort{
 								{
 									Name:          "http",
-									ContainerPort: funcTrigger.FuncPort,
+									ContainerPort: funcSpecs.FuncPort,
 								},
 							},
 							EnvFrom: []apiv1.EnvFromSource{},
 							Env: []apiv1.EnvVar{
 								{
 									Name:  "OPEN_FUNC_PORT",
-									Value: strconv.Itoa(int(funcTrigger.FuncPort)),
+									Value: strconv.Itoa(int(funcSpecs.FuncPort)),
 								},
 							},
 						},
@@ -70,7 +70,7 @@ func CreateDeployment(clientset *kubernetes.Clientset, funcTrigger types.FuncTri
 	}
 
 	log.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
-	return funcTrigger.FuncName, nil
+	return funcSpecs.FuncName, nil
 }
 
 // DeleteDeployment does what the name says

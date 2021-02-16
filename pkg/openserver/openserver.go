@@ -18,14 +18,16 @@ import (
 	"github.com/IoanStoianov/Open-func/pkg/triggers"
 	models "github.com/IoanStoianov/Open-func/pkg/types"
 
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/apimachinery/pkg/util/uuid"
+	"k8s.io/client-go/kubernetes"
 
 	"github.com/gorilla/mux"
 )
 
 type resource struct {
-	deploymentName string
-	serviceName    string
+	DeploymentName string `json:"deploymentName"`
+	ServiceName    string `json:"serviceName"`
 }
 
 // OpenServer is the core of Open-func
@@ -33,6 +35,7 @@ type OpenServer struct {
 	http.Server
 	shutdowReq chan bool // can be used for remote shutdown
 	resources  sync.Map
+	client     *kubernetes.Clientset
 }
 
 // NewServer - server factory
@@ -48,12 +51,15 @@ func NewServer(addr uint) (*OpenServer, error) {
 			WriteTimeout: 10 * time.Second,
 		},
 		shutdowReq: make(chan bool),
+		client:     client.OutCluster(),
 	}
 
 	r := mux.NewRouter()
 
 	r.HandleFunc("/ping", pong).Methods("GET")
+	r.HandleFunc("/listSpecs", s.ListFuncSpecs).Methods("GET")
 	r.HandleFunc("/prepare", s.PrepareFunc).Methods("POST")
+	r.HandleFunc("/delete", s.DeleteFunc).Methods("DELETE")
 	r.HandleFunc("/trigger", triggers.HTTPTriggerRedirect).Methods("POST")
 	r.HandleFunc("/coldTrigger", triggers.HTTPColdTrigger).Methods("POST")
 
@@ -88,7 +94,7 @@ func (s *OpenServer) WaitShutdown() {
 
 // PrepareFunc readies a deployment and service for hot execution
 func (s *OpenServer) PrepareFunc(w http.ResponseWriter, r *http.Request) {
-	var payload models.FuncTrigger
+	var payload models.FuncSpecs
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&payload); err != nil {
@@ -98,14 +104,12 @@ func (s *OpenServer) PrepareFunc(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	client := client.InCluster()
-
-	deployName, err := k8s.CreateDeployment(client, payload)
+	deployName, err := k8s.CreateDeployment(s.client, payload)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
-	serviceName, err := k8s.CreateService(client, payload)
+	serviceName, err := k8s.CreateService(s.client, payload)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -116,20 +120,69 @@ func (s *OpenServer) PrepareFunc(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(204)
 }
 
+//ListFuncSpecs returns list of funcSpecs
+func (s *OpenServer) ListFuncSpecs(w http.ResponseWriter, r *http.Request) {
+
+	m := map[string]resource{}
+	s.resources.Range(func(key, value interface{}) bool {
+		m[fmt.Sprint(key)] = value.(resource)
+		return true
+	})
+
+	b, err := json.MarshalIndent(m, "", " ")
+	if err != nil {
+		panic(err)
+	}
+	fmt.Fprintf(w, string(b)+"\n")
+}
+
+// DeleteFunc deletes a deployment and service ands stops hot containers
+func (s *OpenServer) DeleteFunc(w http.ResponseWriter, r *http.Request) {
+
+	idParam, ok := r.URL.Query()["id"]
+	id := types.UID(idParam[0])
+
+	if !ok {
+		log.Println("Url Param 'id' is missing")
+		return
+	}
+
+	pair, ok := s.resources.Load(id)
+	if ok {
+		specs := pair.(resource)
+
+		if err := k8s.DeleteDeployment(s.client, specs.DeploymentName); err != nil {
+			log.Printf("Error deleting deployment %s:\n%v", specs.DeploymentName, err)
+		}
+
+		if err := k8s.DeleteService(s.client, specs.ServiceName); err != nil {
+			log.Printf("Error deleting service %s:\n%v", specs.ServiceName, err)
+		}
+
+		s.resources.Delete(id)
+
+	} else {
+		err := fmt.Sprintf("Error loading resources for id %s", id)
+		http.Error(w, err, 500)
+		return
+	}
+
+	w.WriteHeader(204)
+}
+
 func (s *OpenServer) cleanUp() {
-	client := client.InCluster()
 
 	s.resources.Range(func(key, value interface{}) bool {
 		r := value.(resource)
 
-		log.Printf("Deleting pair %s %s ...", r.deploymentName, r.serviceName)
+		log.Printf("Deleting pair %s %s ...", r.DeploymentName, r.ServiceName)
 
-		if err := k8s.DeleteDeployment(client, r.deploymentName); err != nil {
-			log.Printf("Error deleting deployment %s:\n%v", r.deploymentName, err)
+		if err := k8s.DeleteDeployment(s.client, r.DeploymentName); err != nil {
+			log.Printf("Error deleting deployment %s:\n%v", r.DeploymentName, err)
 		}
 
-		if err := k8s.DeleteService(client, r.serviceName); err != nil {
-			log.Printf("Error deleting service %s:\n%v", r.serviceName, err)
+		if err := k8s.DeleteService(s.client, r.ServiceName); err != nil {
+			log.Printf("Error deleting service %s:\n%v", r.ServiceName, err)
 		}
 
 		return true

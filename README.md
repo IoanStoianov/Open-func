@@ -19,3 +19,5 @@ Open source runtime similar to AWS serverless lambda and Azure functions.
 `eval $(minikube -p minikube docker-env)` - has to be run in every new terminal window before you build an image inside the cluster. An alternative would be to put it into your .profile file.
 
 `docker build examples/<dockerfile-location> -t <image-name>`
+
+`kubectl expose pod open-func-{PODS_ID} --type="NodePort" --port 8090` - extra debugging

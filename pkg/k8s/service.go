@@ -14,25 +14,25 @@ import (
 )
 
 // CreateService creates a clusterIP service for the deployment of a trigger
-func CreateService(clientset *kubernetes.Clientset, funcTrigger types.FuncTrigger) (string, error) {
+func CreateService(clientset *kubernetes.Clientset, funcSpecs types.FuncSpecs) (string, error) {
 	servicesClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
 
 	newService := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: fmt.Sprintf("%s-service", funcTrigger.FuncName),
+			Name: fmt.Sprintf("%s-service", funcSpecs.FuncName),
 			Labels: map[string]string{
-				"app": funcTrigger.FuncName,
+				"app": funcSpecs.FuncName,
 			},
 		},
 		Spec: apiv1.ServiceSpec{
 			Type: apiv1.ServiceTypeClusterIP,
 			Selector: map[string]string{
-				"app": funcTrigger.FuncName,
+				"app": funcSpecs.FuncName,
 			},
 			Ports: []apiv1.ServicePort{
 				{
 					Port:       80,
-					TargetPort: intstr.FromInt(int(funcTrigger.FuncPort)),
+					TargetPort: intstr.FromInt(int(funcSpecs.FuncPort)),
 				},
 			},
 		},

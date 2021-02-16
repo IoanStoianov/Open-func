@@ -8,4 +8,6 @@ COPY . .
 
 RUN npm install --production
 
-CMD [ "node", "server.js" ]
+COPY . .
+
+CMD [ "node", "exampleFunc.js" ]
