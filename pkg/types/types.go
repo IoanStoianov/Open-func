@@ -21,3 +21,8 @@ type FuncSpecs struct {
 	FuncPort    int32  `json:"funcPort"`
 	Instances   int32  `json:"instances"`
 }
+
+type FuncResult struct {
+	Name string      `json:"name"`
+	Data interface{} `json:"data"`
+}

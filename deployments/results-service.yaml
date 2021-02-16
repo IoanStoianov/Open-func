@@ -34,3 +34,8 @@ spec:
               cpu: "1000m"
           ports:
             - containerPort: 9000
+          env:
+            - name: MONGO_URL
+              value: mongodb
+            - name: REDIS_HOST
+              value: redis

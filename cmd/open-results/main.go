@@ -2,14 +2,20 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/IoanStoianov/Open-func/pkg/results"
 )
 
 func main() {
-	srv, err := results.NewServer(9000)
+	redisHost := os.Getenv("REDIS_HOST")
+	if redisHost == "" {
+		redisHost = "127.0.0.1"
+	}
+
+	srv, err := results.NewServer(9000, redisHost)
 	if err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
 
 	go srv.SubscribeToRedis()
@@ -17,6 +23,6 @@ func main() {
 	log.Println("Staring on port 9000...")
 
 	if err := srv.ListenAndServe(); err != nil {
-		log.Println(err)
+		log.Fatalln(err)
 	}
 }
