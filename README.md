@@ -9,15 +9,15 @@ Open source runtime similar to AWS serverless lambda and Azure functions.
 ### Setup
 `cd open-func`
 
-`kubectl apply -f fabric8-rbac.yaml` this add permission so that open-func can deploy containers
+`kubectl apply -f deployments/default-rbac.yaml` this add permission so that open-func can deploy containers
 
 `eval $(minikube -p minikube docker-env)` has to be run in every new terminal window before you build an image. An alternative would be to put it into your .profile file.
 
 `docker build . -t open-func`
 
-`kubectl create -f open-func.yml`
+`kubectl create -f deployments/open-func.yml`
 
-`kubectl expose pod open-func-x242s --type="NodePort" --port 8090`
+`kubectl expose pod open-func-{PODS_ID} --type="NodePort" --port 8090`
 
 
 

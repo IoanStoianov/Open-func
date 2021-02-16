@@ -13,10 +13,10 @@ import (
 
 const contentType = "application/json"
 
-var triggers map[string]*types.FuncTrigger = make(map[string]*types.FuncTrigger)
+var triggers map[string]*types.FuncSpecs = make(map[string]*types.FuncSpecs)
 
-func registerNewFuncTrigger(w http.ResponseWriter, r *http.Request) {
-	req, err := funcReadFuncTrigger(r)
+func registerNewFuncSpecs(w http.ResponseWriter, r *http.Request) {
+	req, err := funcReadFuncSpecs(r)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
@@ -24,7 +24,7 @@ func registerNewFuncTrigger(w http.ResponseWriter, r *http.Request) {
 	triggers[req.FuncName] = req
 }
 
-func funcReadFuncTrigger(r *http.Request) (*types.FuncTrigger, error) {
+func funcReadFuncSpecs(r *http.Request) (*types.FuncSpecs, error) {
 	// Read body
 	b, err := ioutil.ReadAll(r.Body)
 	if err != nil {
@@ -33,7 +33,7 @@ func funcReadFuncTrigger(r *http.Request) (*types.FuncTrigger, error) {
 	defer r.Body.Close()
 
 	// Unmarshal
-	var req *types.FuncTrigger
+	var req *types.FuncSpecs
 	err = json.Unmarshal(b, req)
 	if err != nil {
 		return nil, err

@@ -6,8 +6,8 @@ type HTTPTriggerRequest struct {
 	Payload  interface{} `json:"payload"`
 }
 
-// FuncTrigger model
-type FuncTrigger struct {
+//FuncSpecs model
+type FuncSpecs struct {
 	FuncName    string `json:"funcName"`
 	TriggerType string `json:"triggerType"`
 	ImageName   string `json:"imageName"`
