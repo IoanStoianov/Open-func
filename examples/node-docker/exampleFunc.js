@@ -1,9 +1,6 @@
-import triggerListener from "./server.js";
-// import http from "http";
+import triggerListener from "./adapter.js";
 
 import axios from 'axios';
-
-
 
 const myFunc = async (args) => {
     //sample data validation
