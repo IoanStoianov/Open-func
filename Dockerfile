@@ -10,4 +10,4 @@ COPY . .
 RUN go install -v ./...
 
 # Run the executable
-CMD ["open-func"]
+# CMD ["open-func"]

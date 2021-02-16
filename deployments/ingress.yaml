@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: open-func-ingress
+  labels:
+    name: open-func-ingress
+spec:
+  rules:
+    - http:
+        paths:
+          - pathType: Prefix
+            path: "/results"
+            backend:
+              service:
+                name: results-service
+                port:
+                  number: 80
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: open-service
+                port:
+                  number: 80
+      # host: open.func.io

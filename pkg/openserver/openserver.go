@@ -51,7 +51,7 @@ func NewServer(addr uint) (*OpenServer, error) {
 			WriteTimeout: 10 * time.Second,
 		},
 		shutdowReq: make(chan bool),
-		client:     client.OutCluster(),
+		client:     client.InCluster(),
 	}
 
 	r := mux.NewRouter()
@@ -61,6 +61,7 @@ func NewServer(addr uint) (*OpenServer, error) {
 	r.HandleFunc("/prepare", s.PrepareFunc).Methods("POST")
 	r.HandleFunc("/delete", s.DeleteFunc).Methods("DELETE")
 	r.HandleFunc("/trigger", triggers.HTTPTriggerRedirect).Methods("POST")
+	r.HandleFunc("/coldTrigger", triggers.HTTPColdTrigger).Methods("POST")
 
 	// TODO: frontend should be extracted as a standalone service
 	staticFileDirectory := http.Dir("./web/open-func/build/")
