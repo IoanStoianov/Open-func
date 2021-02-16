@@ -4,12 +4,17 @@ metadata:
   name: open-func-ingress
   labels:
     name: open-func-ingress
-  annotations:
-    ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
     - http:
         paths:
+          - pathType: Prefix
+            path: "/results"
+            backend:
+              service:
+                name: results-service
+                port:
+                  number: 80
           - pathType: Prefix
             path: "/"
             backend:
