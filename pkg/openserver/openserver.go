@@ -51,7 +51,7 @@ func NewServer(addr uint) (*OpenServer, error) {
 			WriteTimeout: 10 * time.Second,
 		},
 		shutdowReq: make(chan bool),
-		client:     client.OutCluster(),
+		client:     client.InCluster(),
 	}
 
 	r := mux.NewRouter()
