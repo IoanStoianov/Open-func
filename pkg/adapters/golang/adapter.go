@@ -1,14 +1,14 @@
 package golang
 
 import (
-	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
 )
 
-var action func(interface{}) string
+var action func(io.ReadCloser) string
 
 func hello(w http.ResponseWriter, req *http.Request) {
 
@@ -16,23 +16,12 @@ func hello(w http.ResponseWriter, req *http.Request) {
 }
 
 func triggerFunc(w http.ResponseWriter, r *http.Request) {
-
-	var payload interface{}
-
-	decoder := json.NewDecoder(r.Body)
-	if err := decoder.Decode(&payload); err != nil {
-		log.Println(err)
-		http.Error(w, err.Error(), 400)
-		return
-	}
-	defer r.Body.Close()
-
-	resp := action(payload)
+	resp := action(r.Body)
 	fmt.Fprintf(w, resp)
 }
 
 //TriggerListener starts server and waits for triggers
-func TriggerListener(f func(interface{}) string) {
+func TriggerListener(f func(io.ReadCloser) string) {
 	port := os.Getenv("OPEN_FUNC_PORT")
 	if port == "" {
 		port = "3014"
@@ -42,5 +31,10 @@ func TriggerListener(f func(interface{}) string) {
 	http.HandleFunc("/hello", hello)
 	http.HandleFunc("/triggerHttp", triggerFunc)
 
-	http.ListenAndServe(":"+port, nil)
+	log.Printf("Starting server on port %s...\n", port)
+
+	err := http.ListenAndServe(":"+port, nil)
+	if err != nil {
+		log.Println(err)
+	}
 }
