@@ -1,13 +1,13 @@
-FROM node:12.18.1-alpine
+FROM golang:1.15-alpine
 
-ENV NODE_ENV=production
-
+# Set the Current Working Directory inside the container
 WORKDIR /app
 
-COPY ["package.json", "package-lock.json*", "./"]
-
-RUN npm install --production
-
+# Copy everything from the current directory to the PWD (Present Working Directory) inside the container
 COPY . .
 
-CMD [ "node", "exampleFunc.js" ]
+# Install the package
+RUN go install -v ./...
+
+# Run the executable
+CMD ["go-docker"]
