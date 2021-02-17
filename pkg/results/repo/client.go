@@ -2,6 +2,7 @@ package repo
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/IoanStoianov/Open-func/pkg/types"
@@ -17,8 +18,9 @@ type MongoRepo struct {
 }
 
 // CreateMongoClient - MongoRepo factory
-func CreateMongoClient() (*MongoRepo, error) {
-	opts := options.Client().ApplyURI("mongodb://localhost:27017")
+func CreateMongoClient(host string) (*MongoRepo, error) {
+	uri := fmt.Sprintf("mongodb://%s:27017", host)
+	opts := options.Client().ApplyURI(uri)
 
 	client, err := mongo.Connect(context.Background(), opts)
 	if err != nil {

@@ -22,6 +22,7 @@ type FuncSpecs struct {
 	Instances   int32  `json:"instances"`
 }
 
+// FuncResult model
 type FuncResult struct {
 	FuncName string      `json:"funcName" bson:"name"`
 	Data     interface{} `json:"data" bson:"data"`

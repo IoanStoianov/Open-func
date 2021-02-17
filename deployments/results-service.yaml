@@ -36,6 +36,6 @@ spec:
             - containerPort: 9000
           env:
             - name: MONGO_URL
-              value: mongodb
+              value: mongo
             - name: REDIS_HOST
               value: redis

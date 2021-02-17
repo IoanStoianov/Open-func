@@ -21,8 +21,8 @@ type Server struct {
 }
 
 // NewServer - ResultsServer factory
-func NewServer(addr uint, redisHost string) (*Server, error) {
-	resultsRepo, err := repo.CreateMongoClient()
+func NewServer(addr uint, redisHost string, mongoHost string) (*Server, error) {
+	resultsRepo, err := repo.CreateMongoClient(mongoHost)
 	if err != nil {
 		return nil, err
 	}
@@ -50,10 +50,10 @@ func NewServer(addr uint, redisHost string) (*Server, error) {
 }
 
 func (s *Server) getLatest(w http.ResponseWriter, r *http.Request) {
-	name, ok := r.URL.Query()["name"]
+	name, ok := r.URL.Query()["funcName"]
 	if !ok {
-		log.Println("Missing 'name' URL param")
-		http.Error(w, "Missing 'name' param", http.StatusBadRequest)
+		log.Println("Missing 'funcName' URL param")
+		http.Error(w, "Missing 'funcName' param", http.StatusBadRequest)
 		return
 	}
 

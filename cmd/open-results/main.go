@@ -12,8 +12,12 @@ func main() {
 	if redisHost == "" {
 		redisHost = "127.0.0.1"
 	}
+	mongoHost := os.Getenv("MONGO_URL")
+	if mongoHost == "" {
+		mongoHost = "127.0.0.1"
+	}
 
-	srv, err := results.NewServer(9000, redisHost)
+	srv, err := results.NewServer(9000, redisHost, mongoHost)
 	if err != nil {
 		log.Fatalln(err)
 	}
