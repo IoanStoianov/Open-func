@@ -17,7 +17,9 @@ async function run() {
         await setPair("ketap1", "Ketap");
 
         // Redis channel publish
-        await publish("results", JSON.stringify({ ketap: "Ketap" }));
+        await publish("results", JSON.stringify({
+            funcName: "func1", data: { ketap: "Ketap" }
+        }));
 
         exit(0);
     } catch (e) {
