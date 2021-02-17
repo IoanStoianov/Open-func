@@ -2,6 +2,7 @@ package k8s
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 
 	"github.com/IoanStoianov/Open-func/pkg/types"
@@ -16,6 +17,11 @@ import (
 // CreateJob starts a job pod for a cold start trigger
 func CreateJob(clientset *kubernetes.Clientset, trigger types.ColdTriggerEvent) (string, error) {
 	batchClient := clientset.BatchV1().Jobs(apiv1.NamespaceDefault)
+
+	payload, err := json.Marshal(trigger.Payload)
+	if err != nil {
+		return "", err
+	}
 
 	job := &batchv1.Job{
 		ObjectMeta: v1.ObjectMeta{
@@ -34,6 +40,10 @@ func CreateJob(clientset *kubernetes.Clientset, trigger types.ColdTriggerEvent) 
 								{
 									Name:  "REDIS_URL",
 									Value: "redis", // TODO: Get from environment
+								},
+								{
+									Name:  "PAYLOAD",
+									Value: string(payload),
 								},
 							},
 						},

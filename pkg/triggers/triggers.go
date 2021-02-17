@@ -78,32 +78,3 @@ func HTTPTriggerRedirect(w http.ResponseWriter, r *http.Request) {
 
 	w.Write(b)
 }
-
-// HTTPColdTrigger handles cold execution from http trigger
-func HTTPColdTrigger(w http.ResponseWriter, r *http.Request) {
-
-}
-
-// ReadTriggerRequest UNUSED - curl localhost:8000 -d '{"name":"Hello"}'
-func ReadTriggerRequest(r *http.Request) ([]byte, error) {
-	// Read body
-	b, err := ioutil.ReadAll(r.Body)
-	defer r.Body.Close()
-	if err != nil {
-		return nil, err
-	}
-
-	// Unmarshal
-	var req types.HTTPTriggerRequest
-	err = json.Unmarshal(b, &req)
-	if err != nil {
-		return nil, err
-	}
-
-	payload, err := json.Marshal(req.Payload)
-	if err != nil {
-		return nil, err
-	}
-
-	return payload, nil
-}

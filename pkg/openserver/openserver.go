@@ -61,7 +61,7 @@ func NewServer(addr uint) (*OpenServer, error) {
 	r.HandleFunc("/prepare", s.PrepareFunc).Methods("POST")
 	r.HandleFunc("/delete", s.DeleteFunc).Methods("DELETE")
 	r.HandleFunc("/trigger", triggers.HTTPTriggerRedirect).Methods("POST")
-	r.HandleFunc("/coldTrigger", triggers.HTTPColdTrigger).Methods("POST")
+	r.HandleFunc("/coldTrigger", s.ColdTriggerSpawn).Methods("POST")
 
 	// TODO: frontend should be extracted as a standalone service
 	staticFileDirectory := http.Dir("./web/open-func/build/")
@@ -116,6 +116,28 @@ func (s *OpenServer) PrepareFunc(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.resources.Store(uuid.NewUUID(), resource{deployName, serviceName})
+
+	w.WriteHeader(204)
+}
+
+//ColdTriggerSpawn creates new container and executes it immediately
+func (s *OpenServer) ColdTriggerSpawn(w http.ResponseWriter, r *http.Request) {
+	var trigger models.ColdTriggerEvent
+
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&trigger); err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), 400)
+		return
+	}
+	defer r.Body.Close()
+
+	_, err := k8s.CreateJob(s.client, trigger)
+	if err != nil {
+		log.Println(err)
+		http.Error(w, err.Error(), 400)
+		return
+	}
 
 	w.WriteHeader(204)
 }
