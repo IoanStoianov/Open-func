@@ -62,7 +62,7 @@ func ColdTriggerListener(action func(io.ReadCloser) string) {
 	status := rdb.Ping(context.TODO())
 	log.Println(status)
 
-	str := fmt.Sprintf("{funcName: \"%s\", \"data\": \"%s\"}", funcName, resp)
+	str := fmt.Sprintf("{\"funcName\": \"%s\", \"data\": \"%s\"}", funcName, resp)
 
 	err := rdb.Publish(context.TODO(), "results", str).Err()
 	if err != nil {

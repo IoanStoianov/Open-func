@@ -35,6 +35,8 @@ github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802/go.mod h1:IVnqGOEym
 github.com/IoanStoianov/Open-func v0.0.0-20210217090225-53a4ec6b3d37 h1:Nyh/PNaSYzYKhkZukqxL9PGgTnq4sc3A9vn+8XQ+N4I=
 github.com/IoanStoianov/Open-func v0.0.0-20210217091512-c87e5c69af58 h1:OI1ctEY2EUCXO4Pjb5Bk57Bc/IwmRd1yJGSro8QrDA8=
 github.com/IoanStoianov/Open-func v0.0.0-20210217091512-c87e5c69af58/go.mod h1:P4TTSkIS2RL+9tSupU6yU95+6gnMZlK+dsYx0z/efmU=
+github.com/IoanStoianov/Open-func v0.0.0-20210217104823-e86cf0765f8f h1:YhoBbwlMHZl/qQvpjsgu4Rl8wIz9KUoZrO3XAvNslVY=
+github.com/IoanStoianov/Open-func v0.0.0-20210217104823-e86cf0765f8f/go.mod h1:P4TTSkIS2RL+9tSupU6yU95+6gnMZlK+dsYx0z/efmU=
 github.com/NYTimes/gziphandler v0.0.0-20170623195520-56545f4a5d46/go.mod h1:3wb06e3pkSAbeQ52E9H9iFoQsEEwGN64994WTCIhntQ=
 github.com/PuerkitoBio/purell v1.1.1/go.mod h1:c11w/QuzBsJSee3cPx9rAFu61PvFxuPbtSwDGJws/X0=
 github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578/go.mod h1:uGdkoq3SwY9Y+13GIhn11/XLaGBb4BfwItxLd5jeuXE=
