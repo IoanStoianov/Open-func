@@ -63,7 +63,7 @@ func ColdTriggerListener(action func(io.ReadCloser) string) {
 		log.Println(err)
 	}
 
-	err = rdb.Publish(context.TODO(), "mychannel1", resp).Err()
+	err = rdb.Publish(context.TODO(), "ketap", resp).Err()
 	if err != nil {
 		log.Println(err)
 	}
