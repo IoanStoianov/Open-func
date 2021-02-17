@@ -19,7 +19,7 @@ export default async function triggerListener(func){
   var resp = await func(obj) 
 
     // Redis channel publish
-  await publish("results", JSON.stringify({funcName: "func1", data: { ketap: resp }}));
+  await publish("results", JSON.stringify({funcName: process.env.FUNC_NAME, data: { ketap: resp }}));
   
   console.log(resp)
 

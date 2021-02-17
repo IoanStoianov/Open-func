@@ -45,6 +45,10 @@ func CreateJob(clientset *kubernetes.Clientset, trigger types.ColdTriggerEvent) 
 									Name:  "PAYLOAD",
 									Value: string(payload),
 								},
+								{
+									Name:  "FUNC_NAME",
+									Value: trigger.FuncName,
+								},
 							},
 						},
 					},

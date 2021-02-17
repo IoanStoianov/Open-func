@@ -48,6 +48,7 @@ func TriggerListener(f func(io.ReadCloser) string) {
 func ColdTriggerListener(action func(io.ReadCloser) string) {
 	payload := os.Getenv("PAYLOAD")
 	redisURL := os.Getenv("REDIS_URL")
+	funcName := os.Getenv("FUNC_NAME")
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     redisURL + ":6379",
@@ -61,7 +62,9 @@ func ColdTriggerListener(action func(io.ReadCloser) string) {
 	status := rdb.Ping(context.TODO())
 	log.Println(status)
 
-	err := rdb.Publish(context.TODO(), "results", fmt.Sprintf("{\"data\": \"%s\"}", resp)).Err()
+	str := fmt.Sprintf("{funcName: \"%s\", \"data\": \"%s\"}", funcName, resp)
+
+	err := rdb.Publish(context.TODO(), "results", str).Err()
 	if err != nil {
 		log.Println(err)
 		os.Exit(1)
