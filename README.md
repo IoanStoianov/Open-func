@@ -8,11 +8,11 @@ Open source runtime similar to AWS serverless lambda and Azure functions.
 
 ## Setup
 
+`minikube addons enable ingress` - enables ingress for minikube
+
 `make build` - builds server image in cluster
 
-`kubectl apply -f deployments/default-rbac.yaml` - adds cluster admin rights to the server
-
-`kubectl apply -f deployments/open-func.yaml` - deploys Open-func in the cluster
+`kubectl apply -f deployments/`
 
 ## Adding the example images to the cluster
 
