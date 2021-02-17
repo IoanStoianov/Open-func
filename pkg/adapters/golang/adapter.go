@@ -49,22 +49,21 @@ func ColdTriggerListener(action func(io.ReadCloser) string) {
 	payload := os.Getenv("PAYLOAD")
 	redisURL := os.Getenv("REDIS_URL")
 
-	data := ioutil.NopCloser(strings.NewReader(payload))
-	resp := action(data)
-
 	rdb := redis.NewClient(&redis.Options{
-		Addr:     redisURL,
+		Addr:     redisURL + ":6379",
 		Password: "", // no password set
 		DB:       0,  // use default DB
 	})
 
-	err := rdb.Publish(context.TODO(), "mychannel1", "hello").Err()
-	if err != nil {
-		log.Println(err)
-	}
+	data := ioutil.NopCloser(strings.NewReader(payload))
+	resp := action(data)
 
-	err = rdb.Publish(context.TODO(), "ketap", resp).Err()
+	status := rdb.Ping(context.TODO())
+	log.Println(status)
+
+	err := rdb.Publish(context.TODO(), "results", fmt.Sprintf("{\"data\": \"%s\"}", resp)).Err()
 	if err != nil {
 		log.Println(err)
+		os.Exit(1)
 	}
 }

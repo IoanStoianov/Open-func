@@ -10,4 +10,4 @@ COPY . .
 RUN go install -v ./...
 
 # Run the executable
-CMD ["go-docker"]
+CMD ["go-docker-cold"]

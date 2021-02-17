@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"io"
+	"os"
 
 	adapter "github.com/IoanStoianov/Open-func/pkg/adapters/golang"
 )
@@ -26,11 +27,12 @@ func readInput(input io.ReadCloser) (expectedInput, error) {
 func exampleFunc(input io.ReadCloser) string {
 	payload, err := readInput(input)
 	if err != nil {
-		return "Invelid Input"
+		return "Invalid Input"
 	}
 	return payload.Name
 }
 
 func main() {
 	adapter.ColdTriggerListener(exampleFunc)
+	os.Exit(0)
 }
